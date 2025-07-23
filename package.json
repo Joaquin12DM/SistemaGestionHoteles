@@ -1,0 +1,44 @@
+{
+  "name": "hotel-management-monorepo",
+  "version": "1.0.0",
+  "description": "Sistema de gestión de hoteles - Monorepo",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "services/*"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm run install:frontend && npm run install:services",
+    "install:frontend": "cd frontend && npm install",
+    "install:services": "npm run install:api-gateway && npm run install:notification-service",
+    "install:api-gateway": "cd services/api-gateway && npm install",
+    "install:notification-service": "cd services/notification-service && npm install",
+    "build:all": "npm run build:frontend && npm run build:services",
+    "build:frontend": "cd frontend && npm run build",
+    "build:services": "npm run build:spring-services",
+    "build:spring-services": "cd scripts && ./build-all.sh",
+    "start:dev": "docker-compose -f docker/docker-compose.yml up",
+    "start:dev:build": "docker-compose -f docker/docker-compose.yml up --build",
+    "stop:dev": "docker-compose -f docker/docker-compose.yml down",
+    "test:all": "npm run test:frontend && npm run test:services",
+    "test:frontend": "cd frontend && npm run test",
+    "test:services": "echo 'Running backend tests...' && npm run test:spring-services",
+    "test:spring-services": "cd scripts && ./test-all.sh",
+    "lint:all": "npm run lint:frontend",
+    "lint:frontend": "cd frontend && npm run lint"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "concurrently": "^8.0.0"
+  },
+  "keywords": [
+    "hotel-management",
+    "monorepo",
+    "microservices",
+    "angular",
+    "spring-boot"
+  ],
+  "author": "Tu nombre",
+  "license": "MIT"
+}

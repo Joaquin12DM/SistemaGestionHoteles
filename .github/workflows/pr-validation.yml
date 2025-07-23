@@ -1,0 +1,89 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Validación de código
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install root dependencies
+        run: npm ci
+      
+      - name: Lint commit messages
+        uses: wagoid/commitlint-github-action@v5
+      
+      - name: Check code formatting
+        run: |
+          # Verificar formato de código
+          if [ -d "frontend" ]; then
+            cd frontend && npm ci && npm run lint:check
+          fi
+
+  # Tests unitarios completos
+  unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [frontend, spring-services, notification-service]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Test Frontend
+        if: matrix.component == 'frontend'
+        run: |
+          cd frontend
+          npm ci
+          npm run test:ci -- --code-coverage
+      
+      - name: Test Spring Services
+        if: matrix.component == 'spring-services'
+        run: |
+          services=("api-gateway" "auth-service" "hotel-service" "booking-service" "user-service" "payment-service")
+          for service in "${services[@]}"; do
+            if [ -d "services/$service" ]; then
+              cd "services/$service"
+              ./mvnw test
+              cd ../..
+            fi
+          done
+      
+      - name: Test Notification Service
+        if: matrix.component == 'notification-service'
+        run: |
+          if [ -d "services/notification-service" ]; then
+            cd services/notification-service
+            npm ci
+            npm test
+          fi
+
+  # Security scan
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
