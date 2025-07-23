@@ -1,233 +1,233 @@
-name: CI/CD Pipeline
+# name: CI/CD Pipeline
 
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
+# on:
+#   push:
+#     branches: [ main, develop ]
+#   pull_request:
+#     branches: [ main ]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository }}
+# env:
+#   REGISTRY: ghcr.io
+#   IMAGE_PREFIX: ${{ github.repository }}
 
-jobs:
-  # Job para detectar cambios en el monorepo
-  detect-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      frontend: ${{ steps.changes.outputs.frontend }}
-      api-gateway: ${{ steps.changes.outputs.api-gateway }}
-      auth-service: ${{ steps.changes.outputs.auth-service }}
-      hotel-service: ${{ steps.changes.outputs.hotel-service }}
-      booking-service: ${{ steps.changes.outputs.booking-service }}
-      user-service: ${{ steps.changes.outputs.user-service }}
-      payment-service: ${{ steps.changes.outputs.payment-service }}
-      notification-service: ${{ steps.changes.outputs.notification-service }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            frontend:
-              - 'frontend/**'
-              - 'shared/**'
-            api-gateway:
-              - 'services/api-gateway/**'
-              - 'shared/**'
-            auth-service:
-              - 'services/auth-service/**'
-              - 'shared/**'
-            hotel-service:
-              - 'services/hotel-service/**'
-              - 'shared/**'
-            booking-service:
-              - 'services/booking-service/**'
-              - 'shared/**'
-            user-service:
-              - 'services/user-service/**'
-              - 'shared/**'
-            payment-service:
-              - 'services/payment-service/**'
-              - 'shared/**'
-            notification-service:
-              - 'services/notification-service/**'
-              - 'shared/**'
+# jobs:
+#   # Job para detectar cambios en el monorepo
+#   detect-changes:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       frontend: ${{ steps.changes.outputs.frontend }}
+#       api-gateway: ${{ steps.changes.outputs.api-gateway }}
+#       auth-service: ${{ steps.changes.outputs.auth-service }}
+#       hotel-service: ${{ steps.changes.outputs.hotel-service }}
+#       booking-service: ${{ steps.changes.outputs.booking-service }}
+#       user-service: ${{ steps.changes.outputs.user-service }}
+#       payment-service: ${{ steps.changes.outputs.payment-service }}
+#       notification-service: ${{ steps.changes.outputs.notification-service }}
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: dorny/paths-filter@v2
+#         id: changes
+#         with:
+#           filters: |
+#             frontend:
+#               - 'frontend/**'
+#               - 'shared/**'
+#             api-gateway:
+#               - 'services/api-gateway/**'
+#               - 'shared/**'
+#             auth-service:
+#               - 'services/auth-service/**'
+#               - 'shared/**'
+#             hotel-service:
+#               - 'services/hotel-service/**'
+#               - 'shared/**'
+#             booking-service:
+#               - 'services/booking-service/**'
+#               - 'shared/**'
+#             user-service:
+#               - 'services/user-service/**'
+#               - 'shared/**'
+#             payment-service:
+#               - 'services/payment-service/**'
+#               - 'shared/**'
+#             notification-service:
+#               - 'services/notification-service/**'
+#               - 'shared/**'
 
-  # Frontend CI/CD
-  frontend:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-    steps:
-      - uses: actions/checkout@v4
+#   # Frontend CI/CD
+#   frontend:
+#     needs: detect-changes
+#     if: needs.detect-changes.outputs.frontend == 'true'
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: ./frontend
+#     steps:
+#       - uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: '18'
+#           cache: 'npm'
+#           cache-dependency-path: frontend/package-lock.json
       
-      - name: Install dependencies
-        run: npm ci
+#       - name: Install dependencies
+#         run: npm ci
       
-      - name: Lint
-        run: npm run lint
+#       - name: Lint
+#         run: npm run lint
       
-      - name: Test
-        run: npm run test:ci
+#       - name: Test
+#         run: npm run test:ci
       
-      - name: Build
-        run: npm run build --prod
+#       - name: Build
+#         run: npm run build --prod
       
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/frontend:${{ github.sha }} .
+#       - name: Build Docker image
+#         run: |
+#           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/frontend:${{ github.sha }} .
       
-      - name: Login to Container Registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Login to Container Registry
+#         if: github.event_name != 'pull_request'
+#         uses: docker/login-action@v3
+#         with:
+#           registry: ${{ env.REGISTRY }}
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Push Docker image
-        if: github.event_name != 'pull_request'
-        run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/frontend:${{ github.sha }}
+#       - name: Push Docker image
+#         if: github.event_name != 'pull_request'
+#         run: |
+#           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/frontend:${{ github.sha }}
 
-  # Template para servicios Spring Boot
-  spring-service:
-    needs: detect-changes
-    if: |
-      needs.detect-changes.outputs.api-gateway == 'true' ||
-      needs.detect-changes.outputs.auth-service == 'true' ||
-      needs.detect-changes.outputs.hotel-service == 'true' ||
-      needs.detect-changes.outputs.booking-service == 'true' ||
-      needs.detect-changes.outputs.user-service == 'true' ||
-      needs.detect-changes.outputs.payment-service == 'true'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: 
-          - name: api-gateway
-            changed: ${{ needs.detect-changes.outputs.api-gateway }}
-          - name: auth-service
-            changed: ${{ needs.detect-changes.outputs.auth-service }}
-          - name: hotel-service  
-            changed: ${{ needs.detect-changes.outputs.hotel-service }}
-          - name: booking-service
-            changed: ${{ needs.detect-changes.outputs.booking-service }}
-          - name: user-service
-            changed: ${{ needs.detect-changes.outputs.user-service }}
-          - name: payment-service
-            changed: ${{ needs.detect-changes.outputs.payment-service }}
-        exclude:
-          - service: { changed: 'false' }
-    defaults:
-      run:
-        working-directory: ./services/${{ matrix.service.name }}
-    steps:
-      - uses: actions/checkout@v4
+#   # Template para servicios Spring Boot
+#   spring-service:
+#     needs: detect-changes
+#     if: |
+#       needs.detect-changes.outputs.api-gateway == 'true' ||
+#       needs.detect-changes.outputs.auth-service == 'true' ||
+#       needs.detect-changes.outputs.hotel-service == 'true' ||
+#       needs.detect-changes.outputs.booking-service == 'true' ||
+#       needs.detect-changes.outputs.user-service == 'true' ||
+#       needs.detect-changes.outputs.payment-service == 'true'
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         service: 
+#           - name: api-gateway
+#             changed: ${{ needs.detect-changes.outputs.api-gateway }}
+#           - name: auth-service
+#             changed: ${{ needs.detect-changes.outputs.auth-service }}
+#           - name: hotel-service  
+#             changed: ${{ needs.detect-changes.outputs.hotel-service }}
+#           - name: booking-service
+#             changed: ${{ needs.detect-changes.outputs.booking-service }}
+#           - name: user-service
+#             changed: ${{ needs.detect-changes.outputs.user-service }}
+#           - name: payment-service
+#             changed: ${{ needs.detect-changes.outputs.payment-service }}
+#         exclude:
+#           - service: { changed: 'false' }
+#     defaults:
+#       run:
+#         working-directory: ./services/${{ matrix.service.name }}
+#     steps:
+#       - uses: actions/checkout@v4
       
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
+#       - name: Setup Java
+#         uses: actions/setup-java@v4
+#         with:
+#           java-version: '17'
+#           distribution: 'temurin'
+#           cache: maven
       
-      - name: Run tests
-        run: ./mvnw test
+#       - name: Run tests
+#         run: ./mvnw test
       
-      - name: Build application
-        run: ./mvnw clean package -DskipTests
+#       - name: Build application
+#         run: ./mvnw clean package -DskipTests
       
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }} .
+#       - name: Build Docker image
+#         run: |
+#           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }} .
       
-      - name: Login to Container Registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Login to Container Registry
+#         if: github.event_name != 'pull_request'
+#         uses: docker/login-action@v3
+#         with:
+#           registry: ${{ env.REGISTRY }}
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Push Docker image
-        if: github.event_name != 'pull_request'
-        run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
+#       - name: Push Docker image
+#         if: github.event_name != 'pull_request'
+#         run: |
+#           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
 
-  # Notification Service (Node.js)
-  notification-service:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.notification-service == 'true'
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./services/notification-service
-    steps:
-      - uses: actions/checkout@v4
+#   # Notification Service (Node.js)
+#   notification-service:
+#     needs: detect-changes
+#     if: needs.detect-changes.outputs.notification-service == 'true'
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: ./services/notification-service
+#     steps:
+#       - uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: services/notification-service/package-lock.json
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: '18'
+#           cache: 'npm'
+#           cache-dependency-path: services/notification-service/package-lock.json
       
-      - name: Install dependencies
-        run: npm ci
+#       - name: Install dependencies
+#         run: npm ci
       
-      - name: Run tests
-        run: npm test
+#       - name: Run tests
+#         run: npm test
       
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/notification-service:${{ github.sha }} .
+#       - name: Build Docker image
+#         run: |
+#           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/notification-service:${{ github.sha }} .
       
-      - name: Login to Container Registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Login to Container Registry
+#         if: github.event_name != 'pull_request'
+#         uses: docker/login-action@v3
+#         with:
+#           registry: ${{ env.REGISTRY }}
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Push Docker image
-        if: github.event_name != 'pull_request'
-        run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/notification-service:${{ github.sha }}
+#       - name: Push Docker image
+#         if: github.event_name != 'pull_request'
+#         run: |
+#           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/notification-service:${{ github.sha }}
 
-  # Deployment (solo en main branch)
-  deploy:
-    needs: [frontend, spring-service, notification-service]
-    if: always() && github.ref == 'refs/heads/main' && (needs.frontend.result == 'success' || needs.spring-service.result == 'success' || needs.notification-service.result == 'success')
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
+#   # Deployment (solo en main branch)
+#   deploy:
+#     needs: [frontend, spring-service, notification-service]
+#     if: always() && github.ref == 'refs/heads/main' && (needs.frontend.result == 'success' || needs.spring-service.result == 'success' || needs.notification-service.result == 'success')
+#     runs-on: ubuntu-latest
+#     environment: production
+#     steps:
+#       - uses: actions/checkout@v4
       
-      - name: Deploy to staging
-        run: |
-          echo "Deploying to staging environment..."
-          # Aquí irían los comandos de deployment
-          # Por ejemplo: kubectl, docker-compose, etc.
+#       - name: Deploy to staging
+#         run: |
+#           echo "Deploying to staging environment..."
+#           # Aquí irían los comandos de deployment
+#           # Por ejemplo: kubectl, docker-compose, etc.
       
-      - name: Run integration tests
-        run: |
-          echo "Running integration tests..."
-          # Aquí irían los tests de integración
+#       - name: Run integration tests
+#         run: |
+#           echo "Running integration tests..."
+#           # Aquí irían los tests de integración
       
-      - name: Deploy to production
-        if: success()
-        run: |
-          echo "Deploying to production environment..."
-          # Deployment a producción
+#       - name: Deploy to production
+#         if: success()
+#         run: |
+#           echo "Deploying to production environment..."
+#           # Deployment a producción

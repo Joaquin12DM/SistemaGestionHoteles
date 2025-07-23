@@ -1,77 +1,77 @@
-name: Dependency Updates
+# name: Dependency Updates
 
-on:
-  schedule:
-    - cron: '0 0 * * 1' # Lunes a medianoche
-  workflow_dispatch:
+# on:
+#   schedule:
+#     - cron: '0 0 * * 1' # Lunes a medianoche
+#   workflow_dispatch:
 
-jobs:
-  # Actualizar dependencias de Node.js
-  update-npm-dependencies:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        workspace: [frontend, services/notification-service]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+# jobs:
+#   # Actualizar dependencias de Node.js
+#   update-npm-dependencies:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         workspace: [frontend, services/notification-service]
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: '18'
       
-      - name: Update dependencies
-        run: |
-          cd ${{ matrix.workspace }}
-          npm update
-          npm audit fix --force
+#       - name: Update dependencies
+#         run: |
+#           cd ${{ matrix.workspace }}
+#           npm update
+#           npm audit fix --force
       
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore: update npm dependencies in ${{ matrix.workspace }}'
-          title: 'Update NPM dependencies in ${{ matrix.workspace }}'
-          body: |
-            Automated dependency update for ${{ matrix.workspace }}
+#       - name: Create Pull Request
+#         uses: peter-evans/create-pull-request@v5
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#           commit-message: 'chore: update npm dependencies in ${{ matrix.workspace }}'
+#           title: 'Update NPM dependencies in ${{ matrix.workspace }}'
+#           body: |
+#             Automated dependency update for ${{ matrix.workspace }}
             
-            - Updated npm dependencies
-            - Fixed security vulnerabilities
-          branch: update-deps-${{ matrix.workspace }}-${{ github.run_number }}
+#             - Updated npm dependencies
+#             - Fixed security vulnerabilities
+#           branch: update-deps-${{ matrix.workspace }}-${{ github.run_number }}
 
-  # Actualizar dependencias de Maven
-  update-maven-dependencies:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [api-gateway, auth-service, hotel-service, booking-service, user-service, payment-service]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+#   # Actualizar dependencias de Maven
+#   update-maven-dependencies:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         service: [api-gateway, auth-service, hotel-service, booking-service, user-service, payment-service]
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+#       - name: Setup Java
+#         uses: actions/setup-java@v4
+#         with:
+#           java-version: '17'
+#           distribution: 'temurin'
       
-      - name: Update Maven dependencies
-        run: |
-          cd services/${{ matrix.service }}
-          ./mvnw versions:use-latest-versions
-          ./mvnw versions:update-properties
+#       - name: Update Maven dependencies
+#         run: |
+#           cd services/${{ matrix.service }}
+#           ./mvnw versions:use-latest-versions
+#           ./mvnw versions:update-properties
       
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore: update maven dependencies in ${{ matrix.service }}'
-          title: 'Update Maven dependencies in ${{ matrix.service }}'
-          body: |
-            Automated dependency update for ${{ matrix.service }}
+#       - name: Create Pull Request
+#         uses: peter-evans/create-pull-request@v5
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#           commit-message: 'chore: update maven dependencies in ${{ matrix.service }}'
+#           title: 'Update Maven dependencies in ${{ matrix.service }}'
+#           body: |
+#             Automated dependency update for ${{ matrix.service }}
             
-            - Updated Maven dependencies to latest versions
-          branch: update-maven-deps-${{ matrix.service }}-${{ github.run_number }}
+#             - Updated Maven dependencies to latest versions
+#           branch: update-maven-deps-${{ matrix.service }}-${{ github.run_number }}

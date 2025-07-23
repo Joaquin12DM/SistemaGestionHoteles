@@ -1,97 +1,97 @@
-version: '3.8'
+# version: '3.8'
 
-services:
-  # Base de datos
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: hotel_management
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+# services:
+#   # Base de datos
+#   postgres:
+#     image: postgres:15
+#     environment:
+#       POSTGRES_DB: hotel_management
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: password
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
 
-  # API Gateway
-  api-gateway:
-    build: ./services/api-gateway
-    ports:
-      - "8080:8080"
-    depends_on:
-      - auth-service
-      - hotel-service
-      - booking-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
+#   # API Gateway
+#   api-gateway:
+#     build: ./services/api-gateway
+#     ports:
+#       - "8080:8080"
+#     depends_on:
+#       - auth-service
+#       - hotel-service
+#       - booking-service
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
 
-  # Auth Service
-  auth-service:
-    build: ./services/auth-service
-    ports:
-      - "8081:8081"
-    depends_on:
-      - postgres
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - DB_HOST=postgres
+#   # Auth Service
+#   auth-service:
+#     build: ./services/auth-service
+#     ports:
+#       - "8081:8081"
+#     depends_on:
+#       - postgres
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#       - DB_HOST=postgres
 
-  # Hotel Service
-  hotel-service:
-    build: ./services/hotel-service
-    ports:
-      - "8082:8082"
-    depends_on:
-      - postgres
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - DB_HOST=postgres
+#   # Hotel Service
+#   hotel-service:
+#     build: ./services/hotel-service
+#     ports:
+#       - "8082:8082"
+#     depends_on:
+#       - postgres
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#       - DB_HOST=postgres
 
-  # Booking Service
-  booking-service:
-    build: ./services/booking-service
-    ports:
-      - "8083:8083"
-    depends_on:
-      - postgres
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - DB_HOST=postgres
+#   # Booking Service
+#   booking-service:
+#     build: ./services/booking-service
+#     ports:
+#       - "8083:8083"
+#     depends_on:
+#       - postgres
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#       - DB_HOST=postgres
 
-  # User Service
-  user-service:
-    build: ./services/user-service
-    ports:
-      - "8084:8084"
-    depends_on:
-      - postgres
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - DB_HOST=postgres
+#   # User Service
+#   user-service:
+#     build: ./services/user-service
+#     ports:
+#       - "8084:8084"
+#     depends_on:
+#       - postgres
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
+#       - DB_HOST=postgres
 
-  # Payment Service
-  payment-service:
-    build: ./services/payment-service
-    ports:
-      - "8085:8085"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
+#   # Payment Service
+#   payment-service:
+#     build: ./services/payment-service
+#     ports:
+#       - "8085:8085"
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
 
-  # Notification Service
-  notification-service:
-    build: ./services/notification-service
-    ports:
-      - "8086:8086"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
+#   # Notification Service
+#   notification-service:
+#     build: ./services/notification-service
+#     ports:
+#       - "8086:8086"
+#     environment:
+#       - SPRING_PROFILES_ACTIVE=docker
 
-  # Frontend Angular
-  frontend:
-    build: ./frontend
-    ports:
-      - "4200:4200"
-    depends_on:
-      - api-gateway
+#   # Frontend Angular
+#   frontend:
+#     build: ./frontend
+#     ports:
+#       - "4200:4200"
+#     depends_on:
+#       - api-gateway
 
-volumes:
-  postgres_data:
+# volumes:
+#   postgres_data:
