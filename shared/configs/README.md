@@ -1,4 +1,6 @@
-# Configuraciones Compartidas
+Ejemplo
+
+<!-- # Configuraciones Compartidas
 
 Este directorio contiene archivos de configuración que se comparten entre diferentes servicios.
 
@@ -17,4 +19,4 @@ Los servicios pueden importar estas configuraciones para mantener consistencia:
 ```javascript
 const dbConfig = require('../../shared/configs/database.config');
 const jwtConfig = require('../../shared/configs/jwt.config');
-```
+``` -->

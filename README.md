@@ -1,20 +1,17 @@
-# Sistema de Gestión de Hoteles - Monorepo
+# Proyecto Sistema de Gestión de Hoteles - Monorepo
 
 ## Estructura del Proyecto
 
-Este es un monorepo que contiene tanto el frontend como múltiples servicios de backend para el sistema de gestión de hoteles.
+Este es un monorepo que contiene el frontend con Angular y como backend servicios que sera usados en el sistema de gestión de hoteles
 
 ### Frontend
 - **Angular**: Aplicación web principal para la interfaz de usuario
 
 ### Servicios Backend
-- **api-gateway**: Gateway principal para el enrutamiento de APIs
-- **auth-service**: Servicio de autenticación y autorización
-- **hotel-service**: Gestión de hoteles, habitaciones y servicios
-- **booking-service**: Gestión de reservas y disponibilidad
-- **user-service**: Gestión de usuarios y perfiles
-- **payment-service**: Procesamiento de pagos
-- **notification-service**: Envío de notificaciones y emails
+- **reservas-service**: Microservicio para la gestión completa del ciclo de vida de reservas hoteleras. Maneja operaciones CRUD de reservas.
+- **por definir**: '''''''
+- **por definir**: '''''''
+- **por definir**: '''''''
 
 ### Estructura de Carpetas Recomendada
 ```
@@ -40,7 +37,7 @@ Este es un monorepo que contiene tanto el frontend como múltiples servicios de 
 
 ## Tecnologías
 - **Frontend**: Angular 17+
-- **Backend**: Spring Boot (Java) / Node.js (según servicio)
-- **Base de Datos**: PostgreSQL, MongoDB
-- **Containerización**: Docker
-- **Orquestación**: Docker Compose / Kubernetes
+- **Backend**: Spring Boot (Java) 
+- **Base de Datos**: SQLServer
+- **Containerización**: Docker(Aun por definir)
+- **Orquestación**: Docker Compose / Kubernetes(Aun por definir)
