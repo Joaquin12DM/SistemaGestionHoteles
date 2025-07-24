@@ -13,28 +13,6 @@ Este es un monorepo que contiene el frontend con Angular y como backend servicio
 - **por definir**: '''''''
 - **por definir**: '''''''
 
-### Estructura de Carpetas Recomendada
-```
-/
-├── frontend/
-│   └── hotel-management-app/     # Aplicación Angular
-├── services/
-│   ├── api-gateway/              # Gateway principal
-│   ├── auth-service/             # Autenticación
-│   ├── hotel-service/            # Gestión de hoteles
-│   ├── booking-service/          # Reservas
-│   ├── user-service/             # Usuarios
-│   ├── payment-service/          # Pagos
-│   └── notification-service/     # Notificaciones
-├── shared/
-│   ├── common/                   # Librerías compartidas
-│   ├── types/                    # Tipos TypeScript compartidos
-│   └── configs/                  # Configuraciones compartidas
-├── docs/                         # Documentación
-├── docker/                       # Archivos Docker
-└── scripts/                      # Scripts de automatización
-```
-
 ## Tecnologías
 - **Frontend**: Angular 17+
 - **Backend**: Spring Boot (Java) 
