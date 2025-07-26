@@ -36,3 +36,17 @@ build/
 src/main/resources/application-secret.properties
 **/application-secret.properties
 /config/application-secret.properties
+
+# Archivos sensibles
+.env
+*.env
+.env.local
+
+# Build artifacts
+target/
+*.jar
+*.war
+*.ear
+
+# Docker
+.docker/
